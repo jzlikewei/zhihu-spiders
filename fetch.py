@@ -59,6 +59,7 @@ def grep_image_urls(text):
     imgs+=jpeg.findall(text)
     imgs+=gif.findall(text)
     imgs+=png.findall(text)
+    imgs = list(set(imgs))
     return imgs
 
 url = "https://www.zhihu.com/question/29814297"

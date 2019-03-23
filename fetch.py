@@ -1,31 +1,38 @@
 import os
 import re
 import requests
+import platform
 def download(folder,url):
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    req = requests.get(url)
-    if req.status_code == requests.codes.ok:
-        name = url.split('/')[-1]
-        f = open("./"+folder+'/'+name,'wb')
-        f.write(req.content)
-        f.close()
-        return True
+    if platform.system()=="Windows":
+        pass
     else:
-        return False
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        # req = requests.get(url)
+        # if req.status_code == requests.codes.ok:
+        name = url.split('/')[-1]
+        #print("curl {0} > {1}".format(url,folder+'/'+name))
+        os.system("curl {0} > {1}".format(url,folder+'/'+name))
+            # f = open("./"+folder+'/'+name,'wb')
+            # f.write(req.content)
+            # f.close()
+        #     return True
+        # else:
+        #     return False
 
 def init(url):
     ua = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'}
     s = requests.Session()
     s.headers.update(ua)
     ret=s.get(url)
-    s.headers.update({"authorization":"oauth c3cef7c66a1843f8b3a9e6a1e3160e20"})
+    #s.headers.update({"authorization":"oauth c3cef7c66a1843f8b3a9e6a1e3160e20"})
     return s
 
 def fetch_answer(s,qid,limit,offset):
     params={
         'sort_by':'default',
-        'include':'data[*].is_normal,is_collapsed,annotation_action,annotation_detail,collapse_reason,is_sticky,collapsed_by,suggest_edit,comment_count,can_comment,content,editable_content,voteup_count,reshipment_settings,comment_permission,mark_infos,created_time,updated_time,review_info,relationship.is_authorized,is_author,voting,is_thanked,is_nothelp,upvoted_followees;data[*].author.follower_count,badge[?(type=best_answerer)].topics',
+        'include':'data[*].is_normal,admin_closed_comment,reward_info,is_collapsed,annotation_action,annotation_detail,collapse_reason,is_sticky,collapsed_by,suggest_edit,comment_count,can_comment,content,editable_content,voteup_count,reshipment_settings,comment_permission,created_time,updated_time,review_info,relevant_info,question,excerpt,relationship.is_authorized,is_author,voting,is_thanked,is_nothelp,is_labeled,is_recognized;data[*].mark_infos[*].url;data[*].author.follower_count,badge[*].topics',
+        'platform':'desktop',
         'limit':limit,
         'offset':offset
     }
@@ -63,8 +70,10 @@ def grep_image_urls(text):
 
 url = "https://www.zhihu.com/question/29814297"
 answers=fetch_all_answers(url)
+print("start to download")
 folder = '29814297'
 for ans in answers:
     imgs = grep_image_urls(ans['content'])
     for url in imgs:
+        print(url)
         download(folder,url)
